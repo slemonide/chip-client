@@ -27,5 +27,5 @@ $ python chip-client.py --help
 
 To run the tests:
 ```
-    $ pytest
+$ pytest
 ```
