@@ -1,3 +1,8 @@
 click
 py
+python-dotenv
+requests
+texttable
+
+# tests
 pytest

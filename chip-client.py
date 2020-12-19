@@ -1,18 +1,69 @@
 import click
+from dotenv import load_dotenv
+from os.path import expanduser
+import os
+import requests
+from texttable import Texttable
+
+class ChipClient(object):
+    def __init__(self):
+        load_dotenv(expanduser("~/.local/share/chip-proxy"), override=True)
+
+        self.api_url = 'http://localhost:8001/api'
+
+        proxy_api_token = os.environ['CONFIGPROXY_AUTH_TOKEN']
+        self.headers = {
+            'Authorization': 'token %s' % proxy_api_token,
+            'Content-Type': 'application/json',
+            'accept': 'application/json'
+        }
 
 @click.group()
-def chip_client():
-    pass
+@click.pass_context
+def chip_client(ctx):
+    ctx.obj = ChipClient()
 
 @chip_client.command()
-def cmd1():
-    '''Command on chip_client'''
-    click.echo('chip_client cmd1')
+@click.pass_obj
+def ls(cc):
+    '''List available routes'''
+
+    r = requests.get(cc.api_url + '/routes', headers=cc.headers)
+    r.raise_for_status()
+    routes = r.json()
+
+    #click.echo(str(routes))
+
+    table_rows = []
+
+    table_rows.append(["Path", "Port", "Last Activity"])
+
+    for route_item in routes.items():
+        route = route_item[0]
+        route_data = route_item[1]
+        route_target = route_data['target']
+        route_last_activity = route_data['last_activity']
+
+        table_rows.append([route, route_target, route_last_activity])
+
+    table = Texttable()
+    table.set_deco(Texttable.HEADER)
+    table.set_cols_dtype(['t', 't', 't'])
+    table.add_rows(table_rows)
+    
+    click.echo(table.draw())
+        
 
 @chip_client.command()
-def cmd2():
-    '''Command on chip_client'''
-    click.echo('chip_client cmd2')
+@click.pass_obj
+@click.argument('path')
+@click.argument('port')
+def add(cc, path, port):
+    '''Add a new route'''
+
+    r = requests.post(cc.api_url + '/routes/' + path, headers=cc.headers,
+        json = {'target': "http://localhost:" + port})
+    r.raise_for_status()
 
 if __name__ == '__main__':
     chip_client()
