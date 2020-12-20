@@ -1,6 +1,7 @@
 # chip-client
 
-chip-client is a command line interface for chip-server
+chip-client is a command line interface for chip-server.
+CHiP stands for [Configurable-Http-Proxy](https://github.com/jupyterhub/configurable-http-proxy)
 
 ## Basic setup
 
