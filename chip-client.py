@@ -6,12 +6,12 @@ import requests
 from texttable import Texttable
 
 class ChipClient(object):
-    def __init__(self):
+    def __init__(self, api_url, api_token):
         load_dotenv(expanduser("~/.local/share/chip-proxy"), override=True)
 
-        self.api_url = 'http://localhost:8001/api'
+        self.api_url = api_url or 'http://localhost:8001/api'
 
-        proxy_api_token = os.environ['CONFIGPROXY_AUTH_TOKEN']
+        proxy_api_token = api_token or os.environ['CONFIGPROXY_AUTH_TOKEN']
         self.headers = {
             'Authorization': 'token %s' % proxy_api_token,
             'Content-Type': 'application/json',
@@ -20,8 +20,10 @@ class ChipClient(object):
 
 @click.group()
 @click.pass_context
-def chip_client(ctx):
-    ctx.obj = ChipClient()
+@click.option("--api-url", help='chip-proxy address')
+@click.option("--api-token", help='chip-proxy API token')
+def chip_client(ctx, api_url, api_token):
+    ctx.obj = ChipClient(api_url, api_token)
 
 @chip_client.command()
 @click.pass_obj
