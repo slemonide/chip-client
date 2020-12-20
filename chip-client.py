@@ -50,6 +50,7 @@ def ls(cc):
 
     table = Texttable()
     table.set_deco(Texttable.HEADER)
+    table.set_cols_width([40,35,25])
     table.set_cols_dtype(['t', 't', 't'])
     table.add_rows(table_rows)
     
